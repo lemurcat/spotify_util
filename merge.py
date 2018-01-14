@@ -5,6 +5,7 @@ import sys
 import spotipy
 import spotipy.util as util
 
+FILTER_EXPLICIT = True
 
 def interleave(lst1, lst2):
     len1 = len(lst1)
@@ -56,8 +57,10 @@ if token:
             for track_wrap in tracks['items']:
                 track = track_wrap['track']
                 print('  '+track['name'])
-                lst.append((track['name'], track['id']))
-        
+                print('    Explicit: '+str(track['explicit']))
+                if (not FILTER_EXPLICIT) or (not track['explicit']):
+                    lst.append((track['name'], track['id']))
+
     if len(g_playlists.keys()) == 2:
         for (k,v) in g_playlists.items():
             print(k)
