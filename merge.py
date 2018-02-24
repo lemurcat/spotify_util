@@ -53,13 +53,23 @@ if token:
         if playlist['name'] in ('beebs', other_name):
             lst = []
             g_playlists[playlist['name']] = lst
-            tracks = sp.user_playlist_tracks(me['id'], playlist['id'])
-            for track_wrap in tracks['items']:
-                track = track_wrap['track']
-                print('  '+track['name'])
-                print('    Explicit: '+str(track['explicit']))
-                if (not FILTER_EXPLICIT) or (not track['explicit']):
-                    lst.append((track['name'], track['id']))
+            i = 0
+            tracks = sp.user_playlist_tracks(me['id'],
+                                             playlist_id = playlist['id'])
+            while True:
+                for track_wrap in tracks['items']:
+                    i+=1
+                    track = track_wrap['track']
+                    print('  '+ str(i) + ' '+track['name'])
+                    print('    Explicit: '+str(track['explicit']))
+                    if (not FILTER_EXPLICIT) or (not track['explicit']):
+                        lst.append((track['name'], track['id']))
+                # Get next set of tracks, if there are still some to
+                # retrieve.
+                if tracks['next']:
+                    tracks = sp.next(tracks)
+                else:
+                    break
 
     if len(g_playlists.keys()) == 2:
         for (k,v) in g_playlists.items():
