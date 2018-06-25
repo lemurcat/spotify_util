@@ -32,7 +32,6 @@ if len(sys.argv) > 2:
     username = sys.argv[1]
     other_name = sys.argv[2]
     shuffle = len(sys.argv) > 3 and sys.argv[3] != '0'
-
 else:
     print("Usage: %s username playlist" % (sys.argv[0],))
     sys.exit()
@@ -48,8 +47,8 @@ if token:
 
     playlists = sp.current_user_playlists(limit=50)
     for playlist in playlists['items']:
-        print(playlist['name'])
-        print(playlist['id'])
+        # print(playlist['name'])
+        # print(playlist['id'])
         if playlist['name'] in ('beebs', other_name):
             lst = []
             g_playlists[playlist['name']] = lst
