@@ -97,16 +97,26 @@ else:
     print("Can't get token for", username)
 
 
-# get_tracks_from_playlist
-# create new playlist with new name
-# add all tracks
-
-def 
-
-def copy_playlist(sp, user, src, dst):
-    tracks = get_tracks_from_playlist(src)
-    new_pl = sp.user_playlist_create(me['id'], dst)    
-    new_track_ids = [i[1] for i in tracks]
+def get_tracks_from_playlist(sp, me, playlist):
+    lst = []
+    i = 0
+    tracks = sp.user_playlist_tracks(me['id'],
+                                     playlist_id = playlist['id'])
+    while True:
+        for track_wrap in tracks['items']:
+            i+=1
+            track = track_wrap['track']
+            lst.append(track)
+        # Get next set of tracks, if there are still some to
+        # retrieve.
+        if tracks['next']:
+            tracks = sp.next(tracks)
+        else:
+            break
+    return 
+        
+def add_tracks_to_playlist(sp, user, new_pl, tracks)    
+    new_track_ids = [i['id'] for i in tracks]
     
     num_tracks = len(new_track_ids)
     idx = 0
@@ -115,5 +125,11 @@ def copy_playlist(sp, user, src, dst):
         sp.user_playlist_add_tracks(me['id'], new_pl['id'], 
                                     new_track_ids[idx:idx+100])
         idx += 100
+
+
+def copy_playlist(sp, user, src, dst):
+    tracks = get_tracks_from_playlist(src)
+    new_pl = sp.user_playlist_create(me['id'], dst)    
+    add_tracks_to_playlist(sp, me, new_pl, tracks)
     
 

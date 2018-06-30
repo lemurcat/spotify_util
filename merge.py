@@ -43,7 +43,7 @@ g_playlists = {}
 if token:
     sp = spotipy.Spotify(auth=token)
     me = sp.me()
-    print (me)
+    #print (me)
 
     playlists = sp.current_user_playlists(limit=50)
     for playlist in playlists['items']:
