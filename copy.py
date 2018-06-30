@@ -1,9 +1,7 @@
 
-import random
-import pprint
 import sys
 import spotipy
-import spotipy.util as util
+import spotipy.util
 
 
 # Get the first playlist of the current user with a matching name.
@@ -64,7 +62,7 @@ def main():
         print("Usage: %s username playlist" % (sys.argv[0],))
         sys.exit(1)
 
-    token = util.prompt_for_user_token(username, scope)
+    token = spotipy.util.prompt_for_user_token(username, scope)
     if not token:
         print('Failed to get token')
         sys.exit(2)
