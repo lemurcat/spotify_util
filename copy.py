@@ -26,23 +26,6 @@ def interleave(lst1, lst2):
 #print interleave([11,12], [1,2,3,4,5,6,7,8])
 
 
-scope = 'playlist-modify-public'
-
-if len(sys.argv) > 2:
-    username = sys.argv[1]
-    other_name = sys.argv[2]
-    shuffle = len(sys.argv) > 3 and sys.argv[3] != '0'
-else:
-    print("Usage: %s username playlist" % (sys.argv[0],))
-    sys.exit()
-
-token = util.prompt_for_user_token(username, scope)
-
-g_playlists = {}
-
-if token:
-    sp = spotipy.Spotify(auth=token)
-    me = sp.me()
     #print (me)
 
     playlists = sp.current_user_playlists(limit=50)
@@ -113,7 +96,7 @@ def get_tracks_from_playlist(sp, me, playlist):
             tracks = sp.next(tracks)
         else:
             break
-    return 
+    return lst
         
 def add_tracks_to_playlist(sp, user, new_pl, tracks)    
     new_track_ids = [i['id'] for i in tracks]
@@ -133,3 +116,27 @@ def copy_playlist(sp, user, src, dst):
     add_tracks_to_playlist(sp, me, new_pl, tracks)
     
 
+def main():
+    scope = 'playlist-modify-public'
+
+    if len(sys.argv) > 2:
+        username = sys.argv[1]
+        other_name = sys.argv[2]
+        shuffle = len(sys.argv) > 3 and sys.argv[3] != '0'
+    else:
+        print("Usage: %s username playlist" % (sys.argv[0],))
+        sys.exit(1)
+
+    token = util.prompt_for_user_token(username, scope)
+    if not token:
+        print('Failed to get token')
+        sys.exit(2)
+
+    sp = spotipy.Spotify(auth=token)
+    me = sp.me()
+
+    # get_playlist_by_name('Rose')
+    #copy_playlist(sp, me, 'Rose',
+    
+if __name__ == "__main__":
+    main()
