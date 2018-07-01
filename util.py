@@ -1,23 +1,26 @@
 import spotipy
 import spotipy.util as util
 import random
- 
+import datetime
+
 # Get the first playlist of the current user with a matching name.
 # If two playlists have the matching name, it may not return the
 # one you expect.
-# Only checks the first 50 playlists.
 def get_playlist_by_name(sp, name):
     playlists = sp.current_user_playlists(limit=50)
-    for playlist in playlists['items']:
-        if playlist['name'] == name:
-            return playlist
+    while True:
+        for playlist in playlists['items']:
+            if playlist['name'] == name:
+                return playlist
+        if playlists['next']:
+            playlists = sp.next(playlists)
     return None
 
 
 # playlist = a playlist object
 def get_tracks_from_playlist(sp, me, playlist):
     lst = get_track_info_from_playlist(sp, me, playlist)
-    return [track_info['track'] for track_info in lst]
+    return track_infos_to_tracks(lst)
 
 
 # playlist = a playlist object
@@ -38,6 +41,18 @@ def get_track_info_from_playlist(sp, me, playlist):
             break
     return lst
 
+def track_infos_to_tracks(track_infos):
+    return [track_info['track'] for track_info in track_infos]    
+
+def remove_old_track_infos(track_infos, num_of_days):
+    threshold = datetime.datetime.today() - datetime.timedelta(num_of_days)
+    threshold_str = threshold.isoformat()
+    lst = [ti for ti in track_infos if threshold_str < ti['added_at']]
+    return lst
+    
+def get_recently_added_track_infos(sp, me, playlist, num_of_days):
+    track_infos = get_track_info_from_playlist(sp, me, playlist)
+    return remove_old_track_infos(track_infos, num_of_days)
 
 def add_tracks_to_playlist(sp, user, new_pl, tracks):
     new_track_ids = [i['id'] for i in tracks]
