@@ -13,7 +13,15 @@ def get_playlist_by_name(sp, name):
             return playlist
     return None
 
+
+# playlist = a playlist object
 def get_tracks_from_playlist(sp, me, playlist):
+    lst = get_track_info_from_playlist(sp, me, playlist)
+    return [track_info['track'] for track_info in lst]
+
+
+# playlist = a playlist object
+def get_track_info_from_playlist(sp, me, playlist):
     lst = []
     i = 0
     tracks = sp.user_playlist_tracks(me['id'],
@@ -21,8 +29,7 @@ def get_tracks_from_playlist(sp, me, playlist):
     while True:
         for track_wrap in tracks['items']:
             i+=1
-            track = track_wrap['track']
-            lst.append(track)
+            lst.append(track_wrap)
         # Get next set of tracks, if there are still some to
         # retrieve.
         if tracks['next']:
@@ -30,7 +37,8 @@ def get_tracks_from_playlist(sp, me, playlist):
         else:
             break
     return lst
-        
+
+
 def add_tracks_to_playlist(sp, user, new_pl, tracks):
     new_track_ids = [i['id'] for i in tracks]
     
