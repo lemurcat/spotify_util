@@ -57,7 +57,6 @@ def main():
     if len(sys.argv) > 2:
         username = sys.argv[1]
         other_name = sys.argv[2]
-        shuffle = len(sys.argv) > 3 and sys.argv[3] != '0'
     else:
         print("Usage: %s username playlist" % (sys.argv[0],))
         sys.exit(1)
