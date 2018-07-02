@@ -42,9 +42,8 @@ def update_recent(sp, user):
 def main():
     scope = 'playlist-modify-public'
 
-    if len(sys.argv) > 2:
+    if len(sys.argv) > 1:
         username = sys.argv[1]
-        other_name = sys.argv[2]
     else:
         print("Usage: %s username playlist" % (sys.argv[0],))
         sys.exit(1)

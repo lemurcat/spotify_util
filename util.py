@@ -130,8 +130,6 @@ def merge_playlists(sp, user, name1, name2, filter_explicit, shuffle):
 def delete_all_tracks(sp, user, playlist):
     tracks = get_tracks_from_playlist(sp, user, playlist)
     track_ids = [track['id'] for track in tracks]
-    pprint.pprint(playlist['id'])
-    pprint.pprint(track_ids)
     if len(track_ids) > 0:
         i = 0
         while i < len(track_ids): 
