@@ -2,6 +2,7 @@ import spotipy
 import spotipy.util as util
 import random
 import datetime
+import pprint
 
 # Get the first playlist of the current user with a matching name.
 # If two playlists have the matching name, it may not return the
@@ -12,8 +13,10 @@ def get_playlist_by_name(sp, name):
         for playlist in playlists['items']:
             if playlist['name'] == name:
                 return playlist
-        if playlists['next']:
-            playlists = sp.next(playlists)
+
+        if not playlists['next']:
+            break
+        playlists = sp.next(playlists)
     return None
 
 
@@ -23,22 +26,29 @@ def get_tracks_from_playlist(sp, me, playlist):
     return track_infos_to_tracks(lst)
 
 
+def get_track_info_from_saved(sp):
+    lst = []
+    tracks = sp.current_user_saved_tracks()
+    while True:
+        lst.extend(tracks['items'])
+        if not tracks['next']:
+            break
+        tracks = sp.next(tracks)
+    return lst
+
+
 # playlist = a playlist object
 def get_track_info_from_playlist(sp, me, playlist):
     lst = []
-    i = 0
     tracks = sp.user_playlist_tracks(me['id'],
                                      playlist_id = playlist['id'])
     while True:
-        for track_wrap in tracks['items']:
-            i+=1
-            lst.append(track_wrap)
+        lst.extend(tracks['items'])
         # Get next set of tracks, if there are still some to
         # retrieve.
-        if tracks['next']:
-            tracks = sp.next(tracks)
-        else:
+        if not tracks['next']:
             break
+        tracks = sp.next(tracks)
     return lst
 
 def track_infos_to_tracks(track_infos):
@@ -54,9 +64,19 @@ def get_recently_added_track_infos(sp, me, playlist, num_of_days):
     track_infos = get_track_info_from_playlist(sp, me, playlist)
     return remove_old_track_infos(track_infos, num_of_days)
 
+def get_recently_added_track_infos_from_saved(sp, me, num_of_days):
+    track_infos = get_track_info_from_saved(sp)
+    return remove_old_track_infos(track_infos, num_of_days)
+
 def add_tracks_to_playlist(sp, user, new_pl, tracks):
-    new_track_ids = [i['id'] for i in tracks]
-    
+    if len(tracks) == 0:
+        return
+    # get track ids if that's not what was given
+    if isinstance(tracks[0], dict):
+        new_track_ids = [i['id'] for i in tracks]
+    else:
+        new_track_ids = tracks
+        
     num_tracks = len(new_track_ids)
     idx = 0
     while idx < num_tracks:
@@ -105,3 +125,18 @@ def merge_playlists(sp, user, name1, name2, filter_explicit, shuffle):
     merged_list = interleave(src_tracks1, src_tracks2)
     new_pl = sp.user_playlist_create(user['id'], 'merged '+name2)
     add_tracks_to_playlist(sp, user, new_pl, merged_list)
+
+    
+def delete_all_tracks(sp, user, playlist):
+    tracks = get_tracks_from_playlist(sp, user, playlist)
+    track_ids = [track['id'] for track in tracks]
+    pprint.pprint(playlist['id'])
+    pprint.pprint(track_ids)
+    if len(track_ids) > 0:
+        i = 0
+        while i < len(track_ids): 
+            sp.user_playlist_remove_all_occurrences_of_tracks(user['id'],
+                                                              playlist['id'],
+                                                              track_ids[i:
+                                                                        i+100])
+            i += 100
