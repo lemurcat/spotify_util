@@ -14,11 +14,14 @@ def clear_and_get_playlist(sp, user, playlist_name):
     return pl
 
 def update_recent(sp, user):
-    recent_name = 'Recent'
+    print('clearing Recent')
     recent_pl = clear_and_get_playlist(sp, user, 'Recent')
+    print('clearing Recent to listen')
     recent_to_listen_pl = clear_and_get_playlist(sp, user, 'Recent to listen')
+    print('clearing Recent saved')
     recent_saved_pl = clear_and_get_playlist(sp, user, 'Recent saved')
 
+    print('getting recent tracks from to listen')
     to_listen = util.get_playlist_by_name(sp, 'to listen')
     to_l_trks = util.track_infos_to_tracks(
         util.get_recently_added_track_infos(sp,
@@ -26,21 +29,25 @@ def update_recent(sp, user):
                                             to_listen,
                                             60))
 
+    print('getting recent saved tracks')
     saved_trks = util.track_infos_to_tracks(
         util.get_recently_added_track_infos_from_saved(sp,
                                             user,
                                             60))
 
+    print('adding to Recent to listen')
     util.add_tracks_to_playlist(sp, user, recent_to_listen_pl, to_l_trks)
+    print('adding to Recent saved')
     util.add_tracks_to_playlist(sp, user, recent_saved_pl, saved_trks)
 
     # take union of the two
     all_recent_trks = list(set([tr['id'] for tr in (saved_trks + to_l_trks)]))
+    print('adding to Recent')
     util.add_tracks_to_playlist(sp, user, recent_pl, all_recent_trks)
     
     
 def main():
-    scope = 'playlist-modify-public'
+    scope = 'playlist-modify-public user-library-read'
 
     if len(sys.argv) > 1:
         username = sys.argv[1]
